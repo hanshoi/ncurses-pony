@@ -2,17 +2,9 @@ use "lib:ncurses"
 
 primitive CWindow
 
-class Curses
-  let screen: Window
-
-  new create() =>
-    screen = Window.from_pointer(@initscr[Pointer[CWindow]]())
-    
-  new initscr() =>
-    screen = Window.from_pointer(@initscr[Pointer[CWindow]]())
-
-  fun _final() =>
-    endwin()
+primitive Curses
+  fun initscr(): Window =>
+    Window.from_pointer(@initscr[Pointer[CWindow]]())
     
   fun endwin() =>
     @endwin[None]()
