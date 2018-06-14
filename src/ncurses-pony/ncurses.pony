@@ -2,12 +2,21 @@ use "lib:ncurses"
 
 primitive CWindow
 
-primitive Curses
-  // Windows
-  fun initscr(): Window =>
-    Window.initscr(@initscr[Pointer[CWindow]]())
+class Curses
+  let screen: Window
+
+  new create() =>
+    screen = Window.from_pointer(@initscr[Pointer[CWindow]]())
     
-  fun endwin() => @endwin[None]()
+  new initscr() =>
+    screen = Window.from_pointer(@initscr[Pointer[CWindow]]())
+
+  fun _final() =>
+    endwin()
+    
+  fun endwin() =>
+    @endwin[None]()
+    
   fun newwin(lines: I32 = 60, columns: I32 = 80, y: I32 = 0, x: I32 = 0): Window =>
     Window.create(lines, columns, y, x)
 
@@ -25,11 +34,9 @@ primitive Curses
   fun printw(s: String) => @printw[None](s.cstring())
   fun mvprintw(row: I32, column: I32, s: String) =>
     @mvprintw[None](row, column, s.cstring())
-  fun mvaddch(row: I32, column: I32, char_string: String) =>
-    try
-      let char = char_string.array()(0)?
-      @mvaddch[None](row, column, char)
-    end
+    
+  fun mvaddch(row: I32, column: I32, char: U8) =>
+    @mvaddch[None](row, column, char)
 
   // Input
   fun getch(): I32 => @getch[I32]()
@@ -50,13 +57,10 @@ class Window
   new create(lines: I32 = 60, columns: I32 = 80, y: I32 = 0, x: I32 = 0) =>
     _cwindow = @newwin[Pointer[CWindow]](lines, columns, y, x)
 
-  new initscr(window: Pointer[CWindow]) =>
+  new from_pointer(window: Pointer[CWindow]) =>
     _cwindow = window
     
-  fun dispose() =>
-    delwin()
-    
-  fun delwin() =>
+  fun _final() =>
     @delwin[None](_cwindow)
 
   fun keypad(flag: Bool) =>
