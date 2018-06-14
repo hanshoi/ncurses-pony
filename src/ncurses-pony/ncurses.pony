@@ -61,6 +61,9 @@ class Window
     _cwindow = window
     
   fun _final() =>
+    delwin()
+
+  fun delwin() =>
     @delwin[None](_cwindow)
 
   fun keypad(flag: Bool) =>
